@@ -180,7 +180,7 @@ DeepSeek Harness 插件 · 拖表就能用 · 右边常驻 AI 助手 · 数据�
 
 <br>
 
-两个办法：先装 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 再按上面三步走；或者从 [Releases](https://github.com/xiaopu-ai/dsh-plugin-crm/releases) 下载 `客户运营台-v<版本>.zip`，解压后双击「启动客户运营台.command」（Mac，需要 Node.js 22.19 或更新），它会自己把 DeepSeek Harness 装在旁边再打开。详见[开发者文档](docs/DEVELOPMENT.md#其他安装方式)。
+两个办法：先装 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 再按上面三步走；或者从 [Releases](https://github.com/xiaopu-ai/dsh-plugin-crm/releases) 下载 `dsh-crm-ops-launcher-v<版本>.zip`，解压后双击「启动客户运营台.command」（Mac，需要 Node.js 22.19 或更新），它会自己把 DeepSeek Harness 装在旁边再打开。详见[开发者文档](docs/DEVELOPMENT.md#其他安装方式)。
 
 </details>
 

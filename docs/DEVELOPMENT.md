@@ -16,7 +16,7 @@
 
 命令行一样能装：`dsh plugin --profile desktop add <上面任意一种>`（`desktop` 换成你的 profile）。
 
-**电脑上还没有 DSH**：从 [Releases](https://github.com/xiaopu-ai/dsh-plugin-crm/releases) 下载 `客户运营台-v<版本>.zip`，解压后双击里面的「启动客户运营台.command」（Mac，需要 Node.js 22.19 或更新）。第一次会自己下载 DSH（装好约 1 GB），之后每次二十秒左右打开；它用独立的 `~/.dsh-crm-ops`，和电脑上别的 DSH 互不影响。细节见包里的 `使用说明.txt`。
+**电脑上还没有 DSH**：从 [Releases](https://github.com/xiaopu-ai/dsh-plugin-crm/releases) 下载 `dsh-crm-ops-launcher-v<版本>.zip`，解压后双击里面的「启动客户运营台.command」（Mac，需要 Node.js 22.19 或更新）。第一次会自己下载 DSH（装好约 1 GB），之后每次二十秒左右打开；它用独立的 `~/.dsh-crm-ops`，和电脑上别的 DSH 互不影响。细节见包里的 `使用说明.txt`。
 
 0.13.0 起包名从 `dsh-crm-ops` 改成了 `@xiaopuai/dsh-crm-ops`（为了发到 npm）。DSH 把两个包名当成两个插件：以前用旧包名装过的，先在「插件」里删除旧的，再按新包名装。数据集在 `文稿/客户运营/`，不受影响；一键启动会自己把旧的换掉。
 
@@ -92,7 +92,7 @@ DSH="/Applications/DeepSeek Harness.app/Contents/Resources/runtime/cli/bin/dsh"
 
 ## 发给别人
 
-`npm run pack`（或 `node tools/pack.mjs 输出目录`）在桌面生成 `客户运营台-v<版本>.zip`：里面是插件文件夹 `dsh-crm-ops/`、一键启动 `启动客户运营台.command`、合成的 `示例数据/` 和 `使用说明.txt`。一键启动走 `tools/start.mjs`：第一次在插件旁边 `npm install`（先国内镜像、再官方源）装 DSH 和 pnpm，把插件装进独立的 `DSH_HOME`（默认 `~/.dsh-crm-ops`），数据集放 `~/Documents/客户运营`（`CRM_OPS_DOCUMENTS` 可改），再起 Web 版。对方只需要 Node.js 22.19+；要用 AI 还需要 DeepSeek 账号或 API Key。
+`npm run pack`（或 `node tools/pack.mjs 输出目录`）在桌面生成 `客户运营台-v<版本>.zip`（放到 Releases 时改成英文名 `dsh-crm-ops-launcher-v<版本>.zip`，GitHub 会把附件名里的中文去掉）：里面是插件文件夹 `dsh-crm-ops/`、一键启动 `启动客户运营台.command`、合成的 `示例数据/` 和 `使用说明.txt`。一键启动走 `tools/start.mjs`：第一次在插件旁边 `npm install`（先国内镜像、再官方源）装 DSH 和 pnpm，把插件装进独立的 `DSH_HOME`（默认 `~/.dsh-crm-ops`），数据集放 `~/Documents/客户运营`（`CRM_OPS_DOCUMENTS` 可改），再起 Web 版。对方只需要 Node.js 22.19+；要用 AI 还需要 DeepSeek 账号或 API Key。
 
 ## 规矩
 
