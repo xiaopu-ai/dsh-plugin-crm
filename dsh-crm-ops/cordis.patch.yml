@@ -1,0 +1,9 @@
+# 客户运营台 bundle layer. The root row owns the dataset folders and the
+# Client→Host calls only a person may make (import, header, cutoff, remove).
+# The 客户运营 assistant mode is declared in presets/crm-assistant.patch.yml.
+- insert:
+    - id: crm-ops
+      name: '@xiaopuai/dsh-crm-ops'
+      config:
+        documentsDir: !!js process.getBuiltinModule('node:path').join(process.getBuiltinModule('node:os').homedir(), 'Documents')
+        stateDir: !!js dshHomePath('crm-ops')

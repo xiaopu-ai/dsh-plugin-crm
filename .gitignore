@@ -1,0 +1,12 @@
+# 依赖和打出来的包不提交
+node_modules/
+*.tgz
+*.zip
+.DS_Store
+*.log
+
+# 真实数据、内部记录一律不进仓库
+*测试报告*.md
+内部*/
+private/
+test-data/

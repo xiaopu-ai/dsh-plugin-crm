@@ -1,0 +1,842 @@
+{
+  "schema": 1,
+  "id": "dealer-network",
+  "name": "经销商网络运营（客户表 + 交付单 + 销售机会）",
+  "pitch": "厂家或总代看经销商：一张全量客户表，加交付单、销售机会（和某场活动的报名表）。这几张表的列名对得上，就能一步起草配置，不用聊。天数门槛、哪些行不算都是假设，按自己的业务改",
+  "labels": {
+    "customer": "客户",
+    "transaction": "购车记录",
+    "asset": "车辆",
+    "lead": "销售机会",
+    "campaign": "市场活动",
+    "owner": "经销商"
+  },
+  "tableHints": [
+    {
+      "name": "客户",
+      "entities": [
+        "customer",
+        "owner"
+      ],
+      "hint": "全量客户表，每个客户一行（同一个人在两家经销商建过档就是两行、两个客户编号）。「购买产品线」「外呼结果」一格里可以有几个值，当多值标签；「最近交付年月」用来兜住交付单没覆盖到的老车主。「大区」是经销商所在的大区（北区、中区、南区、退网、待开业），是经销商的属性，不是客户的。同一个人的重复建档：表里有联系电话时插件按电话自动合并，不要用行过滤去掉它们（交付单还指着这些客户）。",
+      "table": {
+        "mode": "snapshot",
+        "optional": [
+          "联系电话"
+        ],
+        "entities": {
+          "customer": {
+            "id": "客户编号",
+            "name": "客户姓名",
+            "phone": "联系电话",
+            "city": "城市",
+            "owner": "经销商代码"
+          },
+          "owner": {
+            "id": "经销商代码",
+            "name": "经销商简称"
+          }
+        },
+        "extra": [
+          {
+            "entity": "customer",
+            "key": "cust_type",
+            "name": "客户类别",
+            "column": "客户类别",
+            "type": "category"
+          },
+          {
+            "entity": "customer",
+            "key": "province",
+            "name": "省份",
+            "column": "省份",
+            "type": "category"
+          },
+          {
+            "entity": "customer",
+            "key": "last_delivery",
+            "name": "最近交付年月",
+            "column": "最近交付年月",
+            "type": "date"
+          },
+          {
+            "entity": "customer",
+            "key": "product_line",
+            "name": "购买产品线",
+            "column": "购买产品线",
+            "type": "tags"
+          },
+          {
+            "entity": "customer",
+            "key": "unit_count",
+            "name": "历史购买台数",
+            "column": "历史购买台数",
+            "type": "number"
+          },
+          {
+            "entity": "customer",
+            "key": "wechat_status",
+            "name": "企微建联",
+            "column": "企微添加状态",
+            "type": "category"
+          },
+          {
+            "entity": "customer",
+            "key": "call_result",
+            "name": "外呼结果",
+            "column": "外呼结果",
+            "type": "tags"
+          },
+          {
+            "entity": "customer",
+            "key": "app_since",
+            "name": "小程序注册",
+            "column": "小程序注册日期",
+            "type": "date"
+          },
+          {
+            "entity": "customer",
+            "key": "member_since",
+            "name": "会员",
+            "column": "会员开通日期",
+            "type": "date"
+          },
+          {
+            "entity": "owner",
+            "key": "region",
+            "name": "大区",
+            "column": "大区",
+            "type": "category"
+          }
+        ]
+      }
+    },
+    {
+      "name": "交付单",
+      "entities": [
+        "transaction",
+        "asset",
+        "owner"
+      ],
+      "hint": "交付单，每台交付的车一行，既是一笔购车记录，也是车主名下的一台车。「终端客户」形如「C000123 张三」，按空格切开第 1 段就是客户编号；「经销商」形如「D012 某某公司」，第 1 段是经销商代码。没有成交价，金额类指标不启用。「首保权益状态」「首保生效日期」「首保失效日期」是首保权益。「用途」是「试乘试驾」的是试驾车，不是卖出去的，默认不读。",
+      "table": {
+        "mode": "snapshot",
+        "optional": [
+          "车架号"
+        ],
+        "entities": {
+          "transaction": {
+            "orderNo": "交付单号",
+            "date": "交付日期",
+            "type": "产品线",
+            "customerId": {
+              "column": "终端客户",
+              "split": " ",
+              "part": 1
+            },
+            "owner": {
+              "column": "经销商",
+              "split": " ",
+              "part": 1
+            }
+          },
+          "asset": {
+            "id": "交付单号",
+            "serial": "车架号",
+            "type": "产品线",
+            "model": "车型",
+            "start": "交付日期",
+            "end": "保修到期日",
+            "status": "首保权益状态",
+            "customerId": {
+              "column": "终端客户",
+              "split": " ",
+              "part": 1
+            },
+            "owner": {
+              "column": "经销商",
+              "split": " ",
+              "part": 1
+            }
+          },
+          "owner": {
+            "id": {
+              "column": "经销商",
+              "split": " ",
+              "part": 1
+            },
+            "name": {
+              "column": "经销商",
+              "split": " ",
+              "part": -1
+            }
+          }
+        },
+        "extra": [
+          {
+            "entity": "transaction",
+            "key": "unit_usage",
+            "name": "用途",
+            "column": "用途",
+            "type": "category"
+          },
+          {
+            "entity": "asset",
+            "key": "model_year",
+            "name": "年款",
+            "column": "年款",
+            "type": "category"
+          },
+          {
+            "entity": "asset",
+            "key": "benefit_start",
+            "name": "首保生效日期",
+            "column": "首保生效日期",
+            "type": "date"
+          },
+          {
+            "entity": "asset",
+            "key": "benefit_end",
+            "name": "首保失效日期",
+            "column": "首保失效日期",
+            "type": "date"
+          }
+        ],
+        "skipRows": [
+          {
+            "column": "用途",
+            "when": "in",
+            "values": [
+              "试乘试驾"
+            ],
+            "why": "试乘试驾车，不是卖出去的"
+          }
+        ]
+      }
+    },
+    {
+      "name": "销售机会",
+      "entities": [
+        "lead",
+        "owner"
+      ],
+      "hint": "销售机会，每条线索一行，喂给线索，不要当互动，也不要当第二张客户表。「机会级别」既是级别也带结果：赢单是成交，输单是战败，休眠是休眠，热、温、冷、不确定是跟进中。「所属经销商」形如「D012 某某公司」，第 1 段是经销商代码。「区域经理」是这家经销商的区域经理，是经销商的属性。导出里没有手机号时线索挂不上客户，漏斗照样能算；有手机号时会按手机号挂到客户身上。",
+      "table": {
+        "mode": "snapshot",
+        "optional": [
+          "手机号"
+        ],
+        "entities": {
+          "lead": {
+            "id": "线索编号",
+            "date": "创建日期",
+            "customerName": "客户称呼",
+            "customerPhone": "手机号",
+            "result": "机会级别",
+            "level": "机会级别",
+            "channel": "渠道来源",
+            "source": "来源明细",
+            "campaign": "市场活动",
+            "product": "意向产品",
+            "trial": "是否试驾",
+            "owner": {
+              "column": "所属经销商",
+              "split": " ",
+              "part": 1
+            },
+            "rep": "销售顾问",
+            "firstFollow": "首次跟进日期",
+            "lastFollow": "最新跟进日期"
+          },
+          "owner": {
+            "id": {
+              "column": "所属经销商",
+              "split": " ",
+              "part": 1
+            },
+            "name": {
+              "column": "所属经销商",
+              "split": " ",
+              "part": -1
+            }
+          }
+        },
+        "extra": [
+          {
+            "entity": "owner",
+            "key": "dsm",
+            "name": "区域经理",
+            "column": "区域经理",
+            "type": "category"
+          }
+        ]
+      }
+    },
+    {
+      "name": "活动报名",
+      "optional": true,
+      "entities": [
+        "lead"
+      ],
+      "hint": "某一场活动的报名表，是销售机会的子集，用的是同一套线索编号：也喂给线索、对同一个线索编号，插件按编号合成一条，不会算两遍，在线索页能按「来自哪张表」单看这场活动。日期列叫「留资日期」。没有这张表也行。",
+      "table": {
+        "mode": "snapshot",
+        "optional": [
+          "手机号"
+        ],
+        "entities": {
+          "lead": {
+            "id": "线索编号",
+            "date": "留资日期",
+            "customerName": "客户称呼",
+            "customerPhone": "手机号",
+            "result": "机会级别",
+            "level": "机会级别",
+            "channel": "渠道来源",
+            "source": "来源明细",
+            "product": "意向产品",
+            "trial": "是否试驾",
+            "owner": {
+              "column": "所属经销商",
+              "split": " ",
+              "part": 1
+            },
+            "firstFollow": "首次跟进日期",
+            "lastFollow": "最新跟进日期"
+          }
+        }
+      }
+    }
+  ],
+  "columnHints": {
+    "customer.id": [
+      "客户编号"
+    ],
+    "customer.name": [
+      "客户姓名"
+    ],
+    "customer.phone": [
+      "联系电话",
+      "手机号"
+    ],
+    "customer.city": [
+      "城市",
+      "城市"
+    ],
+    "customer.owner": [
+      "经销商代码",
+      "经销商简称"
+    ],
+    "owner.id": [
+      "经销商代码"
+    ],
+    "owner.name": [
+      "经销商简称"
+    ],
+    "transaction.orderNo": [
+      "交付单号"
+    ],
+    "transaction.date": [
+      "交付日期"
+    ],
+    "transaction.type": [
+      "产品线"
+    ],
+    "asset.model": [
+      "车型"
+    ],
+    "asset.start": [
+      "交付日期"
+    ],
+    "asset.end": [
+      "保修到期日"
+    ],
+    "asset.status": [
+      "首保权益状态"
+    ],
+    "lead.id": [
+      "线索编号"
+    ],
+    "lead.date": [
+      "创建日期",
+      "留资日期"
+    ],
+    "lead.result": [
+      "机会级别"
+    ],
+    "lead.level": [
+      "机会级别"
+    ],
+    "lead.channel": [
+      "渠道来源"
+    ],
+    "lead.source": [
+      "来源明细"
+    ],
+    "lead.campaign": [
+      "市场活动"
+    ],
+    "lead.product": [
+      "意向产品"
+    ],
+    "lead.trial": [
+      "是否试驾"
+    ],
+    "lead.rep": [
+      "销售顾问"
+    ],
+    "lead.firstFollow": [
+      "首次跟进日期"
+    ],
+    "lead.lastFollow": [
+      "最新跟进日期"
+    ]
+  },
+  "dictionaries": {
+    "transaction.type": {
+      "公路": [],
+      "越野": [],
+      "水上": [],
+      "冰雪": []
+    },
+    "asset.type": {
+      "公路": [],
+      "越野": [],
+      "水上": [],
+      "冰雪": []
+    },
+    "asset.status": {
+      "待使用": [],
+      "已使用": [],
+      "已过期": []
+    },
+    "lead.result": {
+      "成交": [
+        "赢单"
+      ],
+      "战败": [
+        "输单"
+      ],
+      "休眠": [
+        "休眠"
+      ],
+      "跟进中": [
+        "热",
+        "温",
+        "冷",
+        "不确定"
+      ]
+    },
+    "lead.trial": {
+      "是": [
+        "Yes",
+        "是"
+      ],
+      "否": [
+        "No",
+        "否"
+      ]
+    },
+    "customer.extra.wechat_status": {
+      "已建联": [],
+      "未建联": []
+    },
+    "owner.extra.region": {
+      "北区": [],
+      "中区": [],
+      "南区": [],
+      "退网": [],
+      "待开业": []
+    }
+  },
+  "identity": [
+    {
+      "keys": [
+        "customer.id"
+      ],
+      "strength": "strong"
+    },
+    {
+      "keys": [
+        "customer.phone"
+      ],
+      "strength": "strong",
+      "unless": "shared"
+    }
+  ],
+  "measures": {
+    "refunds": "net",
+    "refundTypes": [],
+    "excludeStatuses": [],
+    "openStatuses": [],
+    "sameDayDuplicates": "each",
+    "staleStatus": "unknown",
+    "note": "一台交付的车算一笔购车记录，试乘试驾车不算；交付单没有成交价，只按台数和人数看。交付单没覆盖到的老车主按客户表的「最近交付年月」算。销售机会按线索算：一条机会一条线索，活动报名表和它用同一套编号，不重复算。"
+  },
+  "segments": [
+    {
+      "name": "购车 3 个月内",
+      "kind": "lifecycle",
+      "desc": "最近一次交车在 90 天内",
+      "any": [
+        {
+          "feature": "days_since_last_txn",
+          "op": "<=",
+          "value": 90
+        },
+        {
+          "feature": "days_since_field",
+          "args": [
+            "extra.last_delivery"
+          ],
+          "op": "<=",
+          "value": 90
+        }
+      ]
+    },
+    {
+      "name": "购车 3～12 个月",
+      "kind": "lifecycle",
+      "desc": "最近一次交车在 91～365 天前",
+      "any": [
+        {
+          "feature": "days_since_last_txn",
+          "op": "between",
+          "value": [
+            91,
+            365
+          ]
+        },
+        {
+          "feature": "days_since_field",
+          "args": [
+            "extra.last_delivery"
+          ],
+          "op": "between",
+          "value": [
+            91,
+            365
+          ]
+        }
+      ]
+    },
+    {
+      "name": "购车 1～2 年",
+      "kind": "lifecycle",
+      "desc": "最近一次交车在 1～2 年前",
+      "any": [
+        {
+          "feature": "days_since_last_txn",
+          "op": "between",
+          "value": [
+            366,
+            730
+          ]
+        },
+        {
+          "feature": "days_since_field",
+          "args": [
+            "extra.last_delivery"
+          ],
+          "op": "between",
+          "value": [
+            366,
+            730
+          ]
+        }
+      ]
+    },
+    {
+      "name": "购车 2 年以上",
+      "kind": "lifecycle",
+      "desc": "最近一次交车超过 2 年",
+      "any": [
+        {
+          "feature": "days_since_last_txn",
+          "op": ">",
+          "value": 730
+        },
+        {
+          "feature": "days_since_field",
+          "args": [
+            "extra.last_delivery"
+          ],
+          "op": ">",
+          "value": 730
+        }
+      ]
+    },
+    {
+      "name": "有线索没购车",
+      "kind": "never",
+      "desc": "没有交车记录，有过销售机会（线索挂得上客户才有人）",
+      "all": [
+        {
+          "feature": "has_txn",
+          "op": "=",
+          "value": false
+        },
+        {
+          "feature": "field",
+          "args": [
+            "extra.last_delivery"
+          ],
+          "op": "=",
+          "value": ""
+        },
+        {
+          "feature": "lead_count",
+          "args": [
+            3650
+          ],
+          "op": ">=",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "没购车也没线索",
+      "kind": "plain",
+      "desc": "客户表里有档，没有交车记录，也没有销售机会",
+      "all": [
+        {
+          "feature": "has_txn",
+          "op": "=",
+          "value": false
+        },
+        {
+          "feature": "field",
+          "args": [
+            "extra.last_delivery"
+          ],
+          "op": "=",
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "flags": [
+    {
+      "name": "首保将失效",
+      "desc": "有一台车的首保权益还没用、60 天内失效（天数待确认）",
+      "all": [
+        {
+          "feature": "asset_count",
+          "where": [
+            {
+              "field": "status",
+              "op": "=",
+              "value": "待使用"
+            },
+            {
+              "days_to": "extra.benefit_end",
+              "op": "between",
+              "value": [
+                0,
+                60
+              ]
+            }
+          ],
+          "op": ">=",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "保修将到期",
+      "desc": "60 天内保修到期（天数待确认）",
+      "all": [
+        {
+          "feature": "asset_days_to_end",
+          "op": "between",
+          "value": [
+            0,
+            60
+          ]
+        }
+      ]
+    },
+    {
+      "name": "多产品线车主",
+      "kind": "valuable",
+      "desc": "买过两条产品线以上",
+      "all": [
+        {
+          "feature": "tag_count",
+          "args": [
+            "extra.product_line"
+          ],
+          "op": ">=",
+          "value": 2
+        }
+      ]
+    },
+    {
+      "name": "多台车主",
+      "kind": "valuable",
+      "desc": "历史上买过两台以上",
+      "all": [
+        {
+          "feature": "field",
+          "args": [
+            "extra.unit_count"
+          ],
+          "op": ">=",
+          "value": 2
+        }
+      ]
+    },
+    {
+      "name": "已加企微",
+      "kind": "reach",
+      "desc": "企微已经建联",
+      "all": [
+        {
+          "feature": "field",
+          "args": [
+            "extra.wechat_status"
+          ],
+          "op": "=",
+          "value": "已建联"
+        }
+      ]
+    },
+    {
+      "name": "外呼接通过",
+      "kind": "reach",
+      "desc": "外呼至少接通过一次",
+      "all": [
+        {
+          "feature": "field",
+          "args": [
+            "extra.call_result"
+          ],
+          "op": "has",
+          "value": "接通"
+        }
+      ]
+    },
+    {
+      "name": "小程序注册",
+      "kind": "reach",
+      "desc": "注册了小程序",
+      "all": [
+        {
+          "feature": "field",
+          "args": [
+            "extra.app_since"
+          ],
+          "op": "!=",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "name": "会员",
+      "kind": "reach",
+      "desc": "开通了会员",
+      "all": [
+        {
+          "feature": "field",
+          "args": [
+            "extra.member_since"
+          ],
+          "op": "!=",
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "lists": {
+    "purposes": [
+      "回访",
+      "首保提醒",
+      "保修到期",
+      "增购推荐",
+      "企微建联",
+      "小程序拉新",
+      "活动邀约",
+      "线索跟进"
+    ],
+    "followDays": 14,
+    "outcomes": [
+      {
+        "code": "visit",
+        "name": "到店",
+        "kind": "success"
+      },
+      {
+        "code": "booked",
+        "name": "约了到店",
+        "kind": "booked"
+      },
+      {
+        "code": "connected",
+        "name": "已建联",
+        "kind": "success"
+      },
+      {
+        "code": "nointerest",
+        "name": "不感兴趣",
+        "kind": "decline",
+        "cooldownDays": 90
+      },
+      {
+        "code": "noreach",
+        "name": "联系不上",
+        "kind": "unreachable",
+        "cooldownDays": 30
+      },
+      {
+        "code": "sold",
+        "name": "已卖车",
+        "kind": "transfer"
+      },
+      {
+        "code": "stop",
+        "name": "不要再联系",
+        "kind": "leave"
+      }
+    ]
+  },
+  "leads": {
+    "followDays": 2,
+    "staleDays": 14,
+    "activeDays": 90,
+    "trialName": "试驾",
+    "minGroup": 30
+  },
+  "campaign": {
+    "effectDays": 30,
+    "minGroup": 30
+  },
+  "privacy": {
+    "summaryOnly": false,
+    "showText": []
+  },
+  "report": {
+    "sections": [
+      {
+        "title": "一句话结论",
+        "hint": "这段时间最重要的一个变化"
+      },
+      {
+        "title": "线索和成交",
+        "hint": "新线索多少、跟得快不快、成交多少，和前一段比；按渠道拆开哪里好哪里差"
+      },
+      {
+        "title": "经销商对比",
+        "hint": "按大区汇总，再点出最该管的几家：待处理压得多的、首跟慢的、成交率低的"
+      },
+      {
+        "title": "车主经营",
+        "hint": "各购车阶段的人数；首保将失效、保修将到期的人在哪些经销商；企微、外呼、小程序各覆盖了多少人，哪一层、哪几家差得最多"
+      },
+      {
+        "title": "建议跟进",
+        "hint": "该优先联系的人群和理由，每条对应一份名单，写明发给哪些经销商"
+      }
+    ]
+  },
+  "notes": "给「厂家或总代 + 经销商网络」这种数据准备的预设：一张全量客户表、交付单、销售机会，加一张活动报名表（可以没有）。认人靠客户编号；表里有联系电话时再按电话合并（同一个人在两家经销商各建了一个档的会合成一个人）。经销商按代码认成同一家：客户表写简称、另外几张表写「代码 全称」。以下是假设，按自己的业务改：首保和保修提前 60 天提醒；留资 2 天内该首次跟进，14 天没再联系算跟进断了，90 天还没结果算放太久；试乘试驾车不算购车；购车阶段按 3 个月、1 年、2 年切；机会级别里「不确定」算跟进中。分层按「买了多久」分，是生命周期阶段，不是流失。已加企微、外呼接通过、小程序注册、会员是四个触达渠道，「触达」页按它们算覆盖。"
+}

@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "id": "education",
+  "name": "教育示例",
+  "pitch": "学员、报名的课程、缴费和续费、试听咨询",
+  "labels": { "customer": "学员", "transaction": "缴费", "asset": "课程", "touch": "互动", "campaign": "招生活动", "owner": "校区" },
+  "tableHints": [
+    { "name": "学员", "entities": ["customer"], "hint": "每个学员一行：学号、姓名、家长手机、校区、报名日期" },
+    { "name": "缴费", "entities": ["transaction"], "hint": "每笔缴费一行：学号或学员姓名、缴费日期、金额、类型（学费、续费、退费）、状态。付款的家长记在付款人" },
+    { "name": "报名", "entities": ["asset"], "hint": "每次报名一行：学号、课程或班级、开课日期、结课日期" },
+    { "name": "互动", "entities": ["touch"], "hint": "试听、咨询、到访，每次一行：学员、渠道、日期、活动" }
+  ],
+  "columnHints": {
+    "customer.id": ["学号", "学员编号"],
+    "customer.name": ["姓名", "学员姓名", "学生姓名"],
+    "customer.phone": ["手机", "家长手机", "联系电话"],
+    "customer.consent": ["营销同意", "营销授权", "同意营销", "是否同意营销"],
+    "customer.firstSeen": ["报名日期", "入学日期"],
+    "customer.owner": ["校区"],
+    "transaction.date": ["缴费日期", "付款日期"],
+    "transaction.amount": ["金额", "实收金额"],
+    "transaction.type": ["类型", "缴费类型"],
+    "transaction.status": ["状态"],
+    "transaction.payerName": ["付款人", "家长姓名"],
+    "asset.model": ["课程", "班级"],
+    "asset.start": ["开课日期"],
+    "asset.end": ["结课日期"]
+  },
+  "dictionaries": {
+    "transaction.type": { "学费": ["学费", "报名费"], "续费": ["续费", "续报"], "退费": ["退费", "退款"] },
+    "transaction.status": { "已付": ["已付", "已缴", "已支付", "支付成功"], "已退": ["已退", "已退款"], "待付": ["待付", "未付", "待支付"], "已取消": ["已取消", "取消"] }
+  },
+  "identity": [
+    { "keys": ["customer.id"], "strength": "strong" },
+    { "keys": ["customer.idcard"], "strength": "strong" },
+    { "keys": ["customer.phone"], "strength": "strong", "unless": "shared" },
+    { "keys": ["customer.name"], "strength": "weak" }
+  ],
+  "measures": {
+    "refunds": "net",
+    "refundTypes": ["退费"],
+    "excludeStatuses": ["待付", "已取消"],
+    "openStatuses": ["待付"],
+    "sameDayDuplicates": "each",
+    "staleStatus": "unknown",
+    "note": "退费冲减金额，不算一次缴费；待付和已取消不计入。"
+  },
+  "segments": [
+    { "name": "新学员", "desc": "第一次出现不到 90 天", "all": [{ "feature": "days_since_first_seen", "op": "<", "value": 90 }] },
+    { "name": "待续费", "desc": "课程 30 天内结束，还没续费", "all": [{ "feature": "asset_days_to_end", "op": "between", "value": [0, 30] }, { "feature": "has_txn", "args": ["续费"], "op": "=", "value": false }] },
+    { "name": "复购潜力", "desc": "近两年续费 2 次以上", "all": [{ "feature": "txn_count", "args": [730, "续费"], "op": ">=", "value": 2 }] },
+    { "name": "活跃", "desc": "近一年有缴费", "all": [{ "feature": "txn_count", "args": [365], "op": ">=", "value": 1 }] },
+    { "name": "待唤醒", "desc": "缴过费，但超过一年没有再缴", "all": [{ "feature": "has_txn", "op": "=", "value": true }, { "feature": "days_since_last_txn", "op": ">", "value": 365 }] },
+    { "name": "潜在学员", "desc": "有过试听或咨询，还没缴过费", "all": [{ "feature": "touch_count", "args": [3650], "op": ">=", "value": 1 }, { "feature": "has_txn", "op": "=", "value": false }] }
+  ],
+  "flags": [
+    { "name": "高投入", "all": [{ "feature": "amount", "args": [365], "op": ">=", "value": 10000 }] }
+  ],
+  "lists": {
+    "purposes": ["续费提醒", "回访", "活动邀约", "试听邀约"],
+    "followDays": 14,
+    "outcomes": [
+      { "code": "enrolled", "name": "已报名", "kind": "success" },
+      { "code": "booked", "name": "约了试听", "kind": "booked" },
+      { "code": "nointerest", "name": "不感兴趣", "kind": "decline", "cooldownDays": 90 },
+      { "code": "noreach", "name": "联系不上", "kind": "unreachable", "cooldownDays": 30 },
+      { "code": "stop", "name": "不要再联系", "kind": "leave" }
+    ]
+  },
+  "campaign": { "effectDays": 30, "minGroup": 30 },
+  "privacy": { "summaryOnly": false, "showText": [] },
+  "report": {
+    "sections": [
+      { "title": "一句话结论", "hint": "这段时间学员和收入最重要的一个变化" },
+      { "title": "学员分层", "hint": "各层人数和占比，和上一期比哪一层变化最大" },
+      { "title": "收入和续费", "hint": "缴费金额、续费人数，按校区拆开看" },
+      { "title": "建议跟进", "hint": "该优先联系的人群和理由，每条对应一份名单" }
+    ]
+  }
+}

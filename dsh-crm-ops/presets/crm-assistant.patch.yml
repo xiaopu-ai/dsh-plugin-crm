@@ -1,0 +1,50 @@
+# 客户运营 · 助手: the one agent behind the chat column that stays open beside the
+# boards. It configures the tables and reads the data in the same conversation
+# (the tools of lib/host/config.js and lib/host/analyst.js, mounted together by
+# lib/host/assistant.js). Deliberately no file, shell or web tools: the agent
+# reads data only through the crm_* tools (redacted profiles, customers as
+# codes) and loads its guides through the skill tool (bundled skills only).
+# Files are imported by the page when the person drops them. Scheduled reports
+# use tool-schedule; a scheduled run can only query and save a report draft.
+# Its workspace is an empty folder under the plugin's stateDir, outside every
+# dataset folder.
+- insert:
+    - id: preset-crm-assistant
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: crm-assistant
+        name: 客户运营
+        description: 客户运营台右边常驻的助手：把表拖进来它帮你配好，数据准备好了它帮你看哪里在变、该找谁、出名单和报告。定稿、清洗、导出都由你在对话里的卡片上点。AI 看不到姓名、手机号和备注原文。
+        order: 12
+        plugins:
+          - id: persona
+            name: '@deepseek-ai/dsh-persona'
+            config:
+              prefix: 你是「客户运营台」的助手，运行在 {{model}} 模型上。你帮不会写代码的运营同事把导出的客户表配好、看懂客户数据、写出有出处的结论。你写给用户看的每一句话都用用户发来的语言：用户写中文，从第一句起就写中文，调用工具之前交代的那半句也是。
+          - id: time-context
+            name: '@deepseek-ai/dsh-time-context'
+          - id: tool-skill
+            name: '@deepseek-ai/dsh-tool-skill'
+          - id: tool-ask-user
+            name: '@deepseek-ai/dsh-tool-ask-user'
+          - id: tool-schedule
+            name: '@deepseek-ai/dsh-tool-schedule'
+          - id: compaction
+            name: cordis:group
+            group: true
+            isolate:
+              compaction: true
+              toolResultPruner: true
+            config:
+              - id: compaction-basic
+                name: '@deepseek-ai/dsh-compaction-basic'
+              - id: command-compact
+                name: '@deepseek-ai/dsh-command-compact'
+              - id: tool-result-pruner
+                name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
+                config:
+                  thresholdChars: 24576
+                  headChars: 12288
+                  tailChars: 2048
+          - id: crm-assistant
+            name: '@xiaopuai/dsh-crm-ops/assistant'

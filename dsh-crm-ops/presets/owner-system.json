@@ -1,0 +1,588 @@
+{
+  "schema": 1,
+  "id": "owner-system",
+  "name": "车主管理系统导出（不带姓名手机号）",
+  "pitch": "接车主管理系统的分析导出：客户、车辆、服务记录、互动、活动。表里没有姓名和手机号，按客户编号认人；要联系人，拿名单里的客户编号回原系统申请导出。分层天数等默认值是假设，按自己的业务改",
+  "labels": {
+    "customer": "客户",
+    "transaction": "服务记录",
+    "asset": "车辆",
+    "touch": "互动",
+    "campaign": "活动",
+    "owner": "门店"
+  },
+  "tableHints": [
+    {
+      "name": "客户",
+      "entities": [
+        "customer"
+      ],
+      "hint": "每个客户一行：客户编号、客户类型（个人、运营、机构）、城市、服务门店、营销同意（同意、拒绝、撤回，空着是没记录）、建档日期。没有姓名和手机号。后面六列对成自定义字段，key 要照这里写，分层和标记才用得上：售前阶段 → stage（类别）；首保提醒 → remind_first、保养提醒 → remind_periodic、季前检查提醒 → remind_preseason、季末封存提醒 → remind_storage（都是类别，原系统按自己的售后规则算好，该提醒就写「是」）；驾驶证到期 → licence_end（日期）。客户类型可以对成 ctype（类别）"
+    },
+    {
+      "name": "车辆",
+      "entities": [
+        "asset"
+      ],
+      "hint": "每辆车一行，只含现在的车主：客户编号、车架号、车型、产品线（水上、公路、越野、冰雪）、品牌、交车日期、保修到期、销售门店。车架号这一列里有 17 位车架号，也有 12 位艇身号（摩托艇），按普通编号读，不要按 VIN 校验"
+    },
+    {
+      "name": "服务记录",
+      "entities": [
+        "transaction"
+      ],
+      "hint": "每次服务一行，作废的不导出：记录编号、客户编号、车架号、服务日期、服务类型（首保、定期保养、季前检查、季末封存、维修、保修维修）、门店。没有金额"
+    },
+    {
+      "name": "互动",
+      "entities": [
+        "touch"
+      ],
+      "hint": "每次跟进或活动签到一行：客户编号、渠道（电话、微信、到店、试驾、活动签到、售后、其他）、日期、活动（只有活动签到才填）。不带跟进内容"
+    },
+    {
+      "name": "活动",
+      "entities": [
+        "campaign"
+      ],
+      "hint": "每个活动一行：活动名称、类型、开始、结束、预算"
+    }
+  ],
+  "columnHints": {
+    "customer.id": [
+      "客户编号"
+    ],
+    "customer.city": [
+      "城市"
+    ],
+    "customer.consent": [
+      "营销同意"
+    ],
+    "customer.firstSeen": [
+      "建档日期"
+    ],
+    "customer.owner": [
+      "服务门店"
+    ],
+    "asset.serial": [
+      "车架号",
+      "车架号/艇身号",
+      "VIN"
+    ],
+    "asset.model": [
+      "车型"
+    ],
+    "asset.type": [
+      "产品线"
+    ],
+    "asset.start": [
+      "交车日期"
+    ],
+    "asset.end": [
+      "保修到期",
+      "保修到期日"
+    ],
+    "asset.owner": [
+      "销售门店"
+    ],
+    "transaction.orderNo": [
+      "记录编号"
+    ],
+    "transaction.date": [
+      "服务日期"
+    ],
+    "transaction.type": [
+      "服务类型"
+    ],
+    "transaction.owner": [
+      "门店"
+    ],
+    "touch.channel": [
+      "渠道"
+    ],
+    "touch.date": [
+      "日期"
+    ],
+    "touch.campaign": [
+      "活动"
+    ],
+    "campaign.name": [
+      "活动名称"
+    ],
+    "campaign.type": [
+      "类型",
+      "活动类型"
+    ],
+    "campaign.start": [
+      "开始"
+    ],
+    "campaign.end": [
+      "结束"
+    ],
+    "campaign.budget": [
+      "预算"
+    ]
+  },
+  "dictionaries": {
+    "customer.consent": {
+      "同意": [
+        "同意",
+        "已同意",
+        "granted"
+      ],
+      "拒绝": [
+        "拒绝",
+        "不同意",
+        "denied"
+      ],
+      "撤回": [
+        "撤回",
+        "已撤回",
+        "withdrawn"
+      ]
+    },
+    "customer.extra.stage": {
+      "新线索": [
+        "新线索",
+        "NEW"
+      ],
+      "已联系": [
+        "已联系",
+        "CONTACTED"
+      ],
+      "已试驾": [
+        "已试驾",
+        "TEST_DRIVE"
+      ],
+      "商谈中": [
+        "商谈中",
+        "NEGOTIATION"
+      ],
+      "成交": [
+        "成交",
+        "WON"
+      ],
+      "战败": [
+        "战败",
+        "LOST"
+      ]
+    },
+    "asset.type": {
+      "水上": [
+        "水上",
+        "WATER"
+      ],
+      "公路": [
+        "公路",
+        "ONROAD"
+      ],
+      "越野": [
+        "越野",
+        "OFFROAD"
+      ],
+      "冰雪": [
+        "冰雪",
+        "SNOW"
+      ]
+    },
+    "transaction.type": {
+      "首保": [
+        "首保",
+        "FIRST_SERVICE"
+      ],
+      "定期保养": [
+        "定期保养",
+        "保养",
+        "PERIODIC"
+      ],
+      "季前检查": [
+        "季前检查",
+        "PRE_SEASON"
+      ],
+      "季末封存": [
+        "季末封存",
+        "封存",
+        "STORAGE"
+      ],
+      "维修": [
+        "维修",
+        "REPAIR"
+      ],
+      "保修维修": [
+        "保修维修",
+        "WARRANTY_REPAIR"
+      ]
+    },
+    "touch.channel": {
+      "电话": [
+        "电话",
+        "PHONE"
+      ],
+      "微信": [
+        "微信",
+        "企微",
+        "WECHAT"
+      ],
+      "到店": [
+        "到店",
+        "VISIT"
+      ],
+      "试驾": [
+        "试驾",
+        "TEST_DRIVE"
+      ],
+      "活动签到": [
+        "活动签到",
+        "活动",
+        "EVENT"
+      ],
+      "售后": [
+        "售后",
+        "SERVICE"
+      ],
+      "其他": [
+        "其他",
+        "OTHER"
+      ]
+    }
+  },
+  "identity": [
+    {
+      "keys": [
+        "customer.id"
+      ],
+      "strength": "strong"
+    },
+    {
+      "keys": [
+        "asset.serial"
+      ],
+      "strength": "strong"
+    }
+  ],
+  "measures": {
+    "refunds": "net",
+    "refundTypes": [],
+    "excludeStatuses": [],
+    "openStatuses": [],
+    "sameDayDuplicates": "each",
+    "staleStatus": "unknown",
+    "note": "原系统的服务记录没有金额，只按次数算；同一天的两条记录各算一次。"
+  },
+  "segments": [
+    {
+      "name": "新线索",
+      "desc": "还没有车，购买意向刚建、还没联系",
+      "all": [
+        {
+          "feature": "asset_count",
+          "op": "=",
+          "value": 0
+        },
+        {
+          "feature": "field",
+          "args": [
+            "extra.stage"
+          ],
+          "op": "=",
+          "value": "新线索"
+        }
+      ]
+    },
+    {
+      "name": "已联系",
+      "desc": "还没有车，已经联系上",
+      "all": [
+        {
+          "feature": "asset_count",
+          "op": "=",
+          "value": 0
+        },
+        {
+          "feature": "field",
+          "args": [
+            "extra.stage"
+          ],
+          "op": "=",
+          "value": "已联系"
+        }
+      ]
+    },
+    {
+      "name": "已试驾",
+      "desc": "还没有车，试驾过",
+      "all": [
+        {
+          "feature": "asset_count",
+          "op": "=",
+          "value": 0
+        },
+        {
+          "feature": "field",
+          "args": [
+            "extra.stage"
+          ],
+          "op": "=",
+          "value": "已试驾"
+        }
+      ]
+    },
+    {
+      "name": "商谈中",
+      "desc": "还没有车，在谈价格和交付",
+      "all": [
+        {
+          "feature": "asset_count",
+          "op": "=",
+          "value": 0
+        },
+        {
+          "feature": "field",
+          "args": [
+            "extra.stage"
+          ],
+          "op": "=",
+          "value": "商谈中"
+        }
+      ]
+    },
+    {
+      "name": "战败",
+      "desc": "还没有车，上一次购买意向没成",
+      "all": [
+        {
+          "feature": "asset_count",
+          "op": "=",
+          "value": 0
+        },
+        {
+          "feature": "field",
+          "args": [
+            "extra.stage"
+          ],
+          "op": "=",
+          "value": "战败"
+        }
+      ]
+    },
+    {
+      "name": "潜客",
+      "desc": "还没有车，也没有购买意向记录",
+      "all": [
+        {
+          "feature": "asset_count",
+          "op": "=",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "name": "新车主",
+      "desc": "交车不到 90 天（待确认）",
+      "all": [
+        {
+          "feature": "asset_age_days",
+          "op": "<",
+          "value": 90
+        }
+      ]
+    },
+    {
+      "name": "活跃车主",
+      "desc": "近 180 天有服务或互动（待确认）",
+      "any": [
+        {
+          "feature": "days_since_last_txn",
+          "op": "<=",
+          "value": 180
+        },
+        {
+          "feature": "days_since_last_touch",
+          "op": "<=",
+          "value": 180
+        }
+      ]
+    },
+    {
+      "name": "沉睡车主",
+      "desc": "180 天没有服务也没有互动，和原系统的「沉睡」口径一致（待确认）",
+      "all": [
+        {
+          "feature": "asset_count",
+          "op": ">=",
+          "value": 1
+        }
+      ]
+    }
+  ],
+  "flags": [
+    {
+      "name": "该做首保",
+      "desc": "原系统按产品线的首保规则算出来该提醒（规则待确认）",
+      "all": [
+        {
+          "feature": "field",
+          "args": [
+            "extra.remind_first"
+          ],
+          "op": "=",
+          "value": "是"
+        }
+      ]
+    },
+    {
+      "name": "该做保养",
+      "desc": "原系统按产品线的定期保养规则算出来该提醒（规则待确认）",
+      "all": [
+        {
+          "feature": "field",
+          "args": [
+            "extra.remind_periodic"
+          ],
+          "op": "=",
+          "value": "是"
+        }
+      ]
+    },
+    {
+      "name": "保修将到期",
+      "desc": "60 天内保修到期（保修期待确认）",
+      "all": [
+        {
+          "feature": "asset_days_to_end",
+          "op": "between",
+          "value": [
+            0,
+            60
+          ]
+        }
+      ]
+    },
+    {
+      "name": "该季前检查",
+      "desc": "原系统按产品线的骑行季算出来该提醒（骑行季待确认）",
+      "all": [
+        {
+          "feature": "field",
+          "args": [
+            "extra.remind_preseason"
+          ],
+          "op": "=",
+          "value": "是"
+        }
+      ]
+    },
+    {
+      "name": "该季末封存",
+      "desc": "原系统按产品线的骑行季算出来该提醒（骑行季待确认）",
+      "all": [
+        {
+          "feature": "field",
+          "args": [
+            "extra.remind_storage"
+          ],
+          "op": "=",
+          "value": "是"
+        }
+      ]
+    },
+    {
+      "name": "驾驶证将到期",
+      "desc": "驾驶证 60 天内到期，或过期不到一年（待确认）",
+      "all": [
+        {
+          "feature": "days_since_field",
+          "args": [
+            "extra.licence_end"
+          ],
+          "op": "between",
+          "value": [
+            -60,
+            365
+          ]
+        }
+      ]
+    }
+  ],
+  "lists": {
+    "purposes": [
+      "首保提醒",
+      "保养提醒",
+      "保修到期",
+      "季前检查",
+      "季末封存",
+      "驾驶证到期",
+      "线索跟进",
+      "沉睡唤醒",
+      "投诉回访",
+      "活动邀约"
+    ],
+    "followDays": 14,
+    "outcomes": [
+      {
+        "code": "visit",
+        "name": "到店",
+        "kind": "success"
+      },
+      {
+        "code": "booked",
+        "name": "约了到店",
+        "kind": "booked"
+      },
+      {
+        "code": "nointerest",
+        "name": "不感兴趣",
+        "kind": "decline",
+        "cooldownDays": 90
+      },
+      {
+        "code": "noreach",
+        "name": "联系不上",
+        "kind": "unreachable",
+        "cooldownDays": 30
+      },
+      {
+        "code": "sold",
+        "name": "已卖车",
+        "kind": "transfer"
+      },
+      {
+        "code": "stop",
+        "name": "不要再联系",
+        "kind": "leave"
+      }
+    ]
+  },
+  "campaign": {
+    "effectDays": 30,
+    "minGroup": 30
+  },
+  "privacy": {
+    "summaryOnly": false,
+    "showText": []
+  },
+  "report": {
+    "sections": [
+      {
+        "title": "一句话结论",
+        "hint": "这个月客户最重要的一个变化"
+      },
+      {
+        "title": "客户分层和流转",
+        "hint": "各层人数，和上个月比哪一层变多了、为什么"
+      },
+      {
+        "title": "门店对比",
+        "hint": "按服务门店拆开的到店次数，掉得最多的是谁"
+      },
+      {
+        "title": "活动和名单效果",
+        "hint": "参加和没参加的差别，只陈述数字"
+      },
+      {
+        "title": "建议跟进",
+        "hint": "该优先联系的人群和理由，每条对应一份名单；联系方式回原系统申请"
+      }
+    ]
+  }
+}

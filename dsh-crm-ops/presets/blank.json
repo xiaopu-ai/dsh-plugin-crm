@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "id": "blank",
+  "name": "从零开始",
+  "pitch": "没有默认值，全靠访谈",
+  "labels": {},
+  "tableHints": [
+    { "name": "线索", "entities": ["lead"], "hint": "有一条线索、商机、留资、报名、咨询一行的表时用：线索编号、留资时间、结果或级别、来源渠道、归属、跟进人、首次和最近跟进日期。没有手机号也能用" }
+  ],
+  "columnHints": {},
+  "dictionaries": {},
+  "identity": [
+    { "keys": ["customer.id"], "strength": "strong" },
+    { "keys": ["customer.phone"], "strength": "strong", "unless": "shared" },
+    { "keys": ["customer.name"], "strength": "weak" }
+  ],
+  "measures": { "refunds": "net", "sameDayDuplicates": "each", "staleStatus": "unknown" },
+  "segments": [
+    { "name": "活跃", "desc": "近一年有交易", "all": [{ "feature": "txn_count", "args": [365], "op": ">=", "value": 1 }] },
+    { "name": "沉睡", "desc": "有过交易，但超过一年没有", "all": [{ "feature": "has_txn", "op": "=", "value": true }, { "feature": "days_since_last_txn", "op": ">", "value": 365 }] }
+  ],
+  "flags": [],
+  "lists": {
+    "purposes": ["回访", "唤醒", "活动邀约"],
+    "followDays": 14,
+    "outcomes": [
+      { "code": "done", "name": "成了", "kind": "success" },
+      { "code": "booked", "name": "约好了", "kind": "booked" },
+      { "code": "nointerest", "name": "不感兴趣", "kind": "decline", "cooldownDays": 90 },
+      { "code": "noreach", "name": "联系不上", "kind": "unreachable", "cooldownDays": 30 },
+      { "code": "stop", "name": "不要再联系", "kind": "leave" }
+    ]
+  },
+  "campaign": { "effectDays": 30, "minGroup": 30 },
+  "privacy": { "summaryOnly": false, "showText": [] },
+  "report": { "sections": [{ "title": "一句话结论", "hint": "最重要的一个变化" }, { "title": "分层", "hint": "各层人数和变化" }, { "title": "建议", "hint": "该跟进的人群和理由" }] }
+}
