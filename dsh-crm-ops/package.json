@@ -1,7 +1,6 @@
 {
   "name": "@xiaopuai/dsh-crm-ops",
   "version": "0.13.0",
-  "private": true,
   "description": "客户运营台：把几个系统导出的客户表和交易表导进来，插件自己清洗、合并、分层，AI 问清业务、写结论。数据都在本机。",
   "keywords": [
     "dsh",
